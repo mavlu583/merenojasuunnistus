@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Rasti</title>
+  <script src="config.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f3f4f6; margin:0; }
+    .wrap { max-width:520px; margin:40px auto; padding:0 16px; }
+    .card {
+      background:#fff; border-radius:16px; padding:24px;
+      box-shadow:0 10px 25px rgba(15,23,42,0.12);
+    }
+    h2 { margin:0 0 8px; text-align:center; }
+    p.sub { text-align:center; color:#6b7280; margin:0 0 20px; }
+    .row { margin-top:8px; font-size:15px; }
+    .label { font-weight:600; color:#4b5563; }
+    .value { color:#111827; }
+    input {
+      width:100%; padding:10px; margin-top:10px;
+      border-radius:10px; border:1px solid #d1d5db;
+      font-size:16px;
+    }
+    button {
+      width:100%; margin-top:20px; padding:11px 14px;
+      border:none; border-radius:999px; font-size:15px;
+      font-weight:600; cursor:pointer;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2>Rasti</h2>
+      <p class="sub">Syötä rastilipun koodi</p>
+
+      <div class="row"><span class="label">Oppilas:</span> <span class="value" id="oppilas"></span></div>
+      <div class="row"><span class="label">Rata:</span> <span class="value" id="rata"></span></div>
+      <div class="row"><span class="label">Rasti:</span> <span class="value" id="rastiNumero"></span></div>
+
+      <label for="syotto">Rastilipun koodi</label>
+      <input id="syotto" type="text" placeholder="Esim. 9">
+
+      <button onclick="laheta()">Jatka</button>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const oppilasID = params.get("id");
+    const rataNimi = params.get("rata");
+    const i = parseInt(params.get("i") || "1", 10);
+
+    let oppilasData = null;
+    let rataData = null;
+
+    async function haeKaikki() {
+      const res = await fetch(API_URL);
+      return await res.json();
+    }
+
+    async function alusta() {
+      if (!oppilasID || !rataNimi || !i) {
+        alert("Virheellinen linkki");
+        location.href = "start.html";
+        return;
+      }
+
+      const lista = await haeKaikki();
+
+      oppilasData = lista.find(x => x.tyyppi === "oppilas" && x.id === oppilasID);
+      rataData = lista.find(x => x.tyyppi === "rata" && x.nimi === rataNimi);
+
+      if (!oppilasData || !rataData) {
+        alert("Tietoja ei löytynyt");
+        location.href = "start.html";
+        return;
+      }
+
+      document.getElementById("oppilas").textContent =
+        `${oppilasData.nimi} (${oppilasData.luokka})`;
+      document.getElementById("rata").textContent = rataData.nimi;
+      document.getElementById("rastiNumero").textContent = i;
+    }
+
+    async function laheta() {
+      const syotetty = document.getElementById("syotto").value.trim();
+      if (!syotetty) {
+        alert("Syötä rastilipun koodi");
+        return;
+      }
+
+      const oikea = rataData.rastit[i - 1];
+      const aika = new Date().toLocaleString("fi-FI");
+
+      await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          tyyppi: "suoritus",
+          oppilas: oppilasID,
+          rata: rataNimi,
+          rasti: i,
+          syotetty: syotetty,
+          oikea: oikea,
+          oikein: syotetty === oikea,
+          aika: aika
+        })
+      });
+
+      if (i >= rataData.rastit.length) {
+        alert("Rata suoritettu!");
+        location.href = "start.html";
+      } else {
+        location.href =
+          `rasti.html?id=${encodeURIComponent(oppilasID)}&rata=${encodeURIComponent(rataNimi)}&i=${i + 1}`;
+      }
+    }
+
+    alusta();
+  </script>
+</body>
+</html>

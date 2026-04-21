@@ -3,62 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Oppilaan tiedot</title>
-
   <script src="config.js"></script>
-
   <style>
-    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; background:#f5f7fa; }
-    h2 { text-align:center; }
-    .box {
-      background:#fff; padding:20px; border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-top:30px;
+    body { font-family: system-ui, sans-serif; background:#f3f4f6; margin:0; }
+    .wrap { max-width:480px; margin:40px auto; padding:0 16px; }
+    .card {
+      background:#fff; border-radius:16px; padding:24px;
+      box-shadow:0 10px 25px rgba(15,23,42,0.12);
     }
-    label { display:block; margin-top:15px; font-weight:bold; }
+    h2 { margin:0 0 8px; text-align:center; }
+    p.sub { text-align:center; color:#6b7280; margin:0 0 24px; }
+    label { font-weight:600; display:block; margin-top:12px; margin-bottom:4px; }
     input, select {
-      width:100%; padding:10px; margin-top:5px; font-size:16px;
-      border-radius:5px; border:1px solid #ccc;
+      width:100%; padding:10px 12px; border-radius:10px;
+      border:1px solid #d1d5db; font-size:15px;
     }
-    input[disabled] { background:#eee; }
+    input[disabled] { background:#f9fafb; color:#4b5563; }
     button {
-      margin-top:20px; padding:12px; width:100%;
-      font-size:16px; background:#007bff; color:white;
-      border:none; cursor:pointer; border-radius:5px;
-    }
-    button:hover { background:#005fcc; }
-    a.kartta {
-      display:block; margin-top:10px; text-align:center;
-      text-decoration:none; color:#007bff;
+      width:100%; margin-top:20px; padding:11px 14px;
+      border:none; border-radius:999px; font-size:15px;
+      font-weight:600; cursor:pointer;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h2>Oppilaan tiedot</h2>
+      <p class="sub">Tarkista nimi ja rata</p>
 
-  <h2>Oppilaan tiedot</h2>
+      <label>Nimi</label>
+      <input id="nimi" disabled>
 
-  <div class="box">
-    <label>Nimi</label>
-    <input id="nimi" type="text" disabled>
+      <label>Luokka</label>
+      <input id="luokka" disabled>
 
-    <label>Luokka</label>
-    <input id="luokka" type="text" disabled>
+      <div id="rataValintaAlue"></div>
 
-    <div id="rataValintaAlue"></div>
-
-    <div id="karttaAlue"></div>
-
-    <button onclick="aloita()">Aloita</button>
+      <button onclick="aloita()">Aloita rata</button>
+    </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const oppilasID = params.get("id");
-
     let oppilasData = null;
     let radat = [];
 
     if (!oppilasID) {
       alert("Oppilaan ID puuttuu");
-      window.location.href = "start.html";
+      location.href = "start.html";
     }
 
     async function haeKaikki() {
@@ -68,19 +63,17 @@
 
     async function alusta() {
       const lista = await haeKaikki();
-
-      oppilasData = lista.find(x => x.tyyppi === "oppilas" && x.id === oppilasID);
+      oppilasData = lista.find(x => x.tyyppi==="oppilas" && x.id===oppilasID);
       if (!oppilasData) {
-        alert("Oppilasta ei löytynyt ID:llä " + oppilasID);
-        window.location.href = "start.html";
+        alert("Oppilasta ei löytynyt");
+        location.href = "start.html";
         return;
       }
 
       document.getElementById("nimi").value = oppilasData.nimi;
       document.getElementById("luokka").value = oppilasData.luokka;
 
-      radat = lista.filter(x => x.tyyppi === "rata");
-
+      radat = lista.filter(x => x.tyyppi==="rata");
       const alue = document.getElementById("rataValintaAlue");
       alue.innerHTML = "";
 
@@ -89,14 +82,12 @@
         label.textContent = "Valitse rata";
         const select = document.createElement("select");
         select.id = "rataValinta";
-
         radat.forEach(r => {
           const opt = document.createElement("option");
           opt.value = r.nimi;
           opt.textContent = r.nimi;
           select.appendChild(opt);
         });
-
         alue.appendChild(label);
         alue.appendChild(select);
       } else {
@@ -104,39 +95,28 @@
         label.textContent = "Rata";
         const input = document.createElement("input");
         input.id = "rataLukittu";
-        input.type = "text";
         input.disabled = true;
         input.value = oppilasData.rata || "";
-
         alue.appendChild(label);
         alue.appendChild(input);
       }
     }
 
-    alusta();
-
     function aloita() {
       let rataNimi = "";
-
       if (oppilasData.saaValitaRadan) {
         const sel = document.getElementById("rataValinta");
-        if (!sel || !sel.value) {
-          alert("Valitse rata");
-          return;
-        }
+        if (!sel || !sel.value) { alert("Valitse rata"); return; }
         rataNimi = sel.value;
       } else {
         rataNimi = oppilasData.rata;
-        if (!rataNimi) {
-          alert("Tälle oppilaalle ei ole asetettu rataa");
-          return;
-        }
+        if (!rataNimi) { alert("Rata puuttuu"); return; }
       }
-
-      window.location.href =
-        `rasti1.html?id=${encodeURIComponent(oppilasID)}&rata=${encodeURIComponent(rataNimi)}`;
+      location.href =
+        `rasti.html?id=${encodeURIComponent(oppilasID)}&rata=${encodeURIComponent(rataNimi)}&i=1`;
     }
-  </script>
 
+    alusta();
+  </script>
 </body>
 </html>
