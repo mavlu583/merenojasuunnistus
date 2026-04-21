@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Oppilaan tiedot</title>
+
+  <script src="config.js"></script>
+
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; background:#f5f7fa; }
+    h2 { text-align:center; }
+    .box {
+      background:#fff; padding:20px; border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-top:30px;
+    }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input, select {
+      width:100%; padding:10px; margin-top:5px; font-size:16px;
+      border-radius:5px; border:1px solid #ccc;
+    }
+    input[disabled] { background:#eee; }
+    button {
+      margin-top:20px; padding:12px; width:100%;
+      font-size:16px; background:#007bff; color:white;
+      border:none; cursor:pointer; border-radius:5px;
+    }
+    button:hover { background:#005fcc; }
+    a.kartta {
+      display:block; margin-top:10px; text-align:center;
+      text-decoration:none; color:#007bff;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Oppilaan tiedot</h2>
+
+  <div class="box">
+    <label>Nimi</label>
+    <input id="nimi" type="text" disabled>
+
+    <label>Luokka</label>
+    <input id="luokka" type="text" disabled>
+
+    <div id="rataValintaAlue"></div>
+
+    <div id="karttaAlue"></div>
+
+    <button onclick="aloita()">Aloita</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const oppilasID = params.get("id");
+
+    let oppilasData = null;
+    let radat = [];
+
+    if (!oppilasID) {
+      alert("Oppilaan ID puuttuu");
+      window.location.href = "start.html";
+    }
+
+    async function haeKaikki() {
+      const res = await fetch(API_URL);
+      return await res.json();
+    }
+
+    async function alusta() {
+      const lista = await haeKaikki();
+
+      oppilasData = lista.find(x => x.tyyppi === "oppilas" && x.id === oppilasID);
+      if (!oppilasData) {
+        alert("Oppilasta ei löytynyt ID:llä " + oppilasID);
+        window.location.href = "start.html";
+        return;
+      }
+
+      document.getElementById("nimi").value = oppilasData.nimi;
+      document.getElementById("luokka").value = oppilasData.luokka;
+
+      radat = lista.filter(x => x.tyyppi === "rata");
+
+      const alue = document.getElementById("rataValintaAlue");
+      alue.innerHTML = "";
+
+      if (oppilasData.saaValitaRadan) {
+        const label = document.createElement("label");
+        label.textContent = "Valitse rata";
+        const select = document.createElement("select");
+        select.id = "rataValinta";
+
+        radat.forEach(r => {
+          const opt = document.createElement("option");
+          opt.value = r.nimi;
+          opt.textContent = r.nimi;
+          select.appendChild(opt);
+        });
+
+        alue.appendChild(label);
+        alue.appendChild(select);
+      } else {
+        const label = document.createElement("label");
+        label.textContent = "Rata";
+        const input = document.createElement("input");
+        input.id = "rataLukittu";
+        input.type = "text";
+        input.disabled = true;
+        input.value = oppilasData.rata || "";
+
+        alue.appendChild(label);
+        alue.appendChild(input);
+      }
+    }
+
+    alusta();
+
+    function aloita() {
+      let rataNimi = "";
+
+      if (oppilasData.saaValitaRadan) {
+        const sel = document.getElementById("rataValinta");
+        if (!sel || !sel.value) {
+          alert("Valitse rata");
+          return;
+        }
+        rataNimi = sel.value;
+      } else {
+        rataNimi = oppilasData.rata;
+        if (!rataNimi) {
+          alert("Tälle oppilaalle ei ole asetettu rataa");
+          return;
+        }
+      }
+
+      window.location.href =
+        `rasti1.html?id=${encodeURIComponent(oppilasID)}&rata=${encodeURIComponent(rataNimi)}`;
+    }
+  </script>
+
+</body>
+</html>

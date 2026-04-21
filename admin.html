@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Ylläpito</title>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background:#f5f7fa;
+      padding:20px;
+      max-width:1000px;
+      margin:auto;
+    }
+    h2 { text-align:center; }
+    .box {
+      background:white;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      margin-top:20px;
+    }
+    input, select {
+      width:100%;
+      padding:8px;
+      margin-top:5px;
+      border-radius:5px;
+      border:1px solid #ccc;
+      font-size:14px;
+    }
+    label { font-weight:bold; margin-top:10px; display:block; }
+    button {
+      padding:8px 12px;
+      background:#007bff;
+      color:white;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      margin-top:10px;
+      font-size:14px;
+    }
+    button:hover { background:#005fcc; }
+    .danger { background:#dc3545; }
+    .danger:hover { background:#b02a37; }
+    .card {
+      background:#fafafa;
+      padding:10px;
+      border-radius:8px;
+      margin-top:10px;
+      border:1px solid #ddd;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .card-main { flex:1; }
+    .hidden { display:none; }
+    .row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+    @media (max-width:800px) {
+      .row { grid-template-columns:1fr; }
+    }
+    .tag {
+      display:inline-block;
+      padding:2px 6px;
+      border-radius:4px;
+      font-size:12px;
+      background:#e9ecef;
+      margin-left:5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Ylläpito</h2>
+
+  <!-- LOGIN -->
+  <div id="login" class="box">
+    <h3>Kirjaudu ylläpitoon</h3>
+    <p>Syötä ylläpitokoodi tai opettajakoodi.</p>
+
+    <label for="adminCode">Koodi</label>
+    <input id="adminCode" type="password" placeholder="Kirjoita koodi">
+
+    <button onclick="kirjauduAdmin()">Kirjaudu</button>
+  </div>
+
+  <!-- PANEELI -->
+  <div id="panel" class="hidden">
+
+    <div class="box" id="infoBox"></div>
+
+    <div class="row">
+
+      <!-- OPPILAAT -->
+      <div class="box">
+        <h3>Oppilaat</h3>
+
+        <h4>Lisää / muokkaa oppilasta</h4>
+
+        <label>Nimi</label>
+        <input id="oppNimi" type="text">
+
+        <label>Luokka</label>
+        <input id="oppLuokka" type="text">
+
+        <label>Oppilaan ID</label>
+        <input id="oppID" type="text">
+
+        <label>Oppilaan opettajat</label>
+        <div id="oppOpettajat"></div>
+
+        <label>Rata-oikeus</label>
+        <select id="oppRataOikeus">
+          <option value="valitsee">Oppilas valitsee radan</option>
+          <option value="maaritettu">Rata määrätty valmiiksi</option>
+        </select>
+
+        <div id="oppRataAlue">
+          <label>Määrätty rata</label>
+          <select id="oppRataSelect"></select>
+        </div>
+
+        <button onclick="tallennaOppilas()">Tallenna oppilas</button>
+
+        <h4>Oppilaslista</h4>
+        <div id="oppilaat"></div>
+      </div>
+
+      <!-- RATAT + OPETTAJAT -->
+      <div class="box">
+        <h3>Ratat</h3>
+
+        <label>Radan nimi</label>
+        <input id="rataNimi" type="text">
+        <button onclick="lisaaRata()">Lisää rata</button>
+
+        <h4>Ratalist</h4>
+        <div id="radat"></div>
+
+        <!-- OPETTAJAT (vain superadmin) -->
+        <div id="opettajaBox" class="hidden" style="margin-top:30px;">
+          <h3>Opettajat</h3>
+
+          <label>Opettajan nimi</label>
+          <input id="opeNimi" type="text">
+
+          <label>Opettajan koodi</label>
+          <input id="opeKoodi" type="text">
+
+          <label>Näkyvyys</label>
+          <select id="opeNakyvyys">
+            <option value="omat">Näkee vain omat oppilaat</option>
+            <option value="kaikki">Näkee kaikki oppilaat</option>
+          </select>
+
+          <button onclick="lisaaOpettaja()">Lisää opettaja</button>
+
+          <h4>Opettajalista</h4>
+          <div id="opettajat"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
