@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Merenoja Suunnistus – Kirjautuminen</title>
+
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; background:#f5f7fa; }
+    h2 { text-align: center; }
+    .box {
+      background:#fff; padding:20px; border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-top:30px;
+    }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input {
+      width:100%; padding:10px; margin-top:5px; font-size:16px;
+      border-radius:5px; border:1px solid #ccc;
+    }
+    button {
+      margin-top:20px; padding:12px; width:100%;
+      font-size:16px; background:#007bff; color:white;
+      border:none; cursor:pointer; border-radius:5px;
+    }
+    button:hover { background:#005fcc; }
+    #adminBtn { background:#444; }
+    #adminBtn:hover { background:#222; }
+  </style>
+</head>
+<body>
+
+  <h2>Merenoja Suunnistus</h2>
+
+  <div class="box">
+    <h3>Oppilaan kirjautuminen</h3>
+    <label for="oppilasID">Oppilaan ID (esim. 7hi)</label>
+    <input id="oppilasID" type="text" placeholder="Syötä ID">
+
+    <button onclick="kirjauduOppilas()">Jatka</button>
+    <button id="adminBtn" onclick="location.href='admin.html'">Ylläpito / Opettajat</button>
+  </div>
+
+  <script>
+    function kirjauduOppilas() {
+      const id = document.getElementById("oppilasID").value.trim();
+      if (!id) {
+        alert("Syötä oppilaan ID");
+        return;
+      }
+      window.location.href = `nimi.html?id=${encodeURIComponent(id)}`;
+    }
+  </script>
+
+</body>
+</html>

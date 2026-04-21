@@ -1,1 +1,5 @@
-# merenojasuunnistus
+# merenojasuunnistus 
+
+Oikeudet: Manu Alasuvanto 
+
+Yhteydenotot: 

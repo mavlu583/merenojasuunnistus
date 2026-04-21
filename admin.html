@@ -3,173 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <title>Ylläpito</title>
-
   <script src="config.js"></script>
   <script src="admin.js"></script>
-
   <style>
-    body {
-      font-family: Arial;
-      background:#f5f7fa;
-      padding:20px;
-      max-width:1000px;
-      margin:auto;
-    }
-    h2 { text-align:center; }
-    .box {
-      background:white;
-      padding:20px;
-      border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      margin-top:20px;
-    }
-    input, select {
-      width:100%;
-      padding:8px;
-      margin-top:5px;
-      border-radius:5px;
-      border:1px solid #ccc;
-      font-size:14px;
-    }
-    label { font-weight:bold; margin-top:10px; display:block; }
-    button {
-      padding:8px 12px;
-      background:#007bff;
-      color:white;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-      margin-top:10px;
-      font-size:14px;
-    }
-    button:hover { background:#005fcc; }
-    .danger { background:#dc3545; }
-    .danger:hover { background:#b02a37; }
+    body { font-family: system-ui, sans-serif; background:#f3f4f6; margin:0; }
+    .wrap { max-width:1100px; margin:32px auto; padding:0 16px; }
+    h1 { text-align:center; margin-bottom:8px; }
+    p.sub { text-align:center; color:#6b7280; margin-top:0; margin-bottom:24px; }
     .card {
-      background:#fafafa;
-      padding:10px;
-      border-radius:8px;
+      background:#fff; border-radius:16px; padding:20px;
+      box-shadow:0 10px 25px rgba(15,23,42,0.12); margin-bottom:20px;
+    }
+    .grid { display:grid; grid-template-columns:1.1fr 1.1fr; gap:20px; }
+    @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+    label { font-weight:600; display:block; margin-top:10px; margin-bottom:4px; }
+    input, select, textarea {
+      width:100%; padding:8px 10px; border-radius:10px;
+      border:1px solid #d1d5db; font-size:14px;
+    }
+    textarea { min-height:60px; resize:vertical; }
+    button {
+      padding:8px 14px; border:none; border-radius:999px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
       margin-top:10px;
-      border:1px solid #ddd;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
     }
-    .card-main { flex:1; }
-    .hidden { display:none; }
-    .row {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:20px;
+    button:hover { filter:brightness(1.05); }
+    .danger { background:#b91c1c; }
+    .pill {
+      display:inline-block; padding:2px 8px; border-radius:999px;
+      background:#e5e7eb; font-size:12px; margin-left:6px;
     }
-    @media (max-width:800px) {
-      .row { grid-template-columns:1fr; }
+    .muted { color:#6b7280; font-size:13px; }
+    .item {
+      background:#f9fafb; border-radius:12px; padding:10px 12px;
+      border:1px solid #e5e7eb; margin-top:8px;
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
     }
-    .tag {
-      display:inline-block;
-      padding:2px 6px;
-      border-radius:4px;
-      font-size:12px;
-      background:#e9ecef;
-      margin-left:5px;
-    }
+    .item-main { font-size:14px; }
+    #loginCard { max-width:420px; margin:40px auto; }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>Ylläpito</h1>
+    <p class="sub">Superadmin ja opettajat hallitsevat oppilaita, ratoja ja suorituksia</p>
 
-  <h2>Ylläpito</h2>
+    <div id="loginCard" class="card">
+      <h3>Kirjaudu</h3>
+      <p class="muted">Syötä ylläpitokoodi tai opettajakoodi.</p>
+      <label for="adminCode">Koodi</label>
+      <input id="adminCode" type="password" placeholder="Kirjoita koodi">
+      <button onclick="kirjauduAdmin()">Kirjaudu</button>
+    </div>
 
-  <!-- LOGIN -->
-  <div id="login" class="box">
-    <h3>Kirjaudu ylläpitoon</h3>
-    <p>Syötä ylläpitokoodi tai opettajakoodi.</p>
+    <div id="panel" style="display:none;">
+      <div class="card" id="infoBox"></div>
 
-    <label for="adminCode">Koodi</label>
-    <input id="adminCode" type="password" placeholder="Kirjoita koodi">
+      <div class="grid">
+        <div>
+          <div class="card">
+            <h3>Oppilaat</h3>
+            <label>Nimi</label>
+            <input id="oppNimi">
 
-    <button onclick="kirjauduAdmin()">Kirjaudu</button>
-  </div>
+            <label>Luokka</label>
+            <input id="oppLuokka">
 
-  <!-- PANEELI -->
-  <div id="panel" class="hidden">
+            <label>Oppilaan ID</label>
+            <input id="oppID">
 
-    <div class="box" id="infoBox"></div>
+            <label>Oppilaan opettajat</label>
+            <div id="oppOpettajat" class="muted"></div>
 
-    <div class="row">
+            <label>Rata-oikeus</label>
+            <select id="oppRataOikeus">
+              <option value="valitsee">Oppilas valitsee radan</option>
+              <option value="maaritettu">Rata määrätty valmiiksi</option>
+            </select>
 
-      <!-- OPPILAAT -->
-      <div class="box">
-        <h3>Oppilaat</h3>
+            <div id="oppRataAlue">
+              <label>Määrätty rata</label>
+              <select id="oppRataSelect"></select>
+            </div>
 
-        <h4>Lisää / muokkaa oppilasta</h4>
+            <button onclick="tallennaOppilas()">Tallenna oppilas</button>
+          </div>
 
-        <label>Nimi</label>
-        <input id="oppNimi" type="text">
-
-        <label>Luokka</label>
-        <input id="oppLuokka" type="text">
-
-        <label>Oppilaan ID</label>
-        <input id="oppID" type="text">
-
-        <label>Oppilaan opettajat</label>
-        <div id="oppOpettajat"></div>
-
-        <label>Rata-oikeus</label>
-        <select id="oppRataOikeus">
-          <option value="valitsee">Oppilas valitsee radan</option>
-          <option value="maaritettu">Rata määrätty valmiiksi</option>
-        </select>
-
-        <div id="oppRataAlue">
-          <label>Määrätty rata</label>
-          <select id="oppRataSelect"></select>
+          <div class="card">
+            <h3>Oppilaslista</h3>
+            <div id="oppilaat" class="muted">Ladataan...</div>
+          </div>
         </div>
 
-        <button onclick="tallennaOppilas()">Tallenna oppilas</button>
+        <div>
+          <div class="card">
+            <h3>Ratat</h3>
+            <label>Radan nimi</label>
+            <input id="rataNimi">
+            <button onclick="lisaaRata()">Lisää rata</button>
 
-        <h4>Oppilaslista</h4>
-        <div id="oppilaat"></div>
-      </div>
+            <div id="radat" class="muted" style="margin-top:10px;">Ei ratoja.</div>
+          </div>
 
-      <!-- RATAT + OPETTAJAT -->
-      <div class="box">
-        <h3>Ratat</h3>
+          <div class="card" id="opettajaBox" style="display:none;">
+            <h3>Opettajat</h3>
 
-        <label>Radan nimi</label>
-        <input id="rataNimi" type="text">
-        <button onclick="lisaaRata()">Lisää rata</button>
+            <label>Opettajan nimi</label>
+            <input id="opeNimi">
 
-        <h4>Ratalist</h4>
-        <div id="radat"></div>
+            <label>Opettajan koodi</label>
+            <input id="opeKoodi">
 
-        <!-- OPETTAJAT (vain superadmin) -->
-        <div id="opettajaBox" class="hidden" style="margin-top:30px;">
-          <h3>Opettajat</h3>
+            <label>Näkyvyys</label>
+            <select id="opeNakyvyys">
+              <option value="omat">Näkee vain omat oppilaat</option>
+              <option value="kaikki">Näkee kaikki oppilaat</option>
+            </select>
 
-          <label>Opettajan nimi</label>
-          <input id="opeNimi" type="text">
+            <button onclick="lisaaOpettaja()">Lisää opettaja</button>
 
-          <label>Opettajan koodi</label>
-          <input id="opeKoodi" type="text">
+            <div id="opettajat" class="muted" style="margin-top:10px;">Ei opettajia.</div>
+          </div>
 
-          <label>Näkyvyys</label>
-          <select id="opeNakyvyys">
-            <option value="omat">Näkee vain omat oppilaat</option>
-            <option value="kaikki">Näkee kaikki oppilaat</option>
-          </select>
-
-          <button onclick="lisaaOpettaja()">Lisää opettaja</button>
-
-          <h4>Opettajalista</h4>
-          <div id="opettajat"></div>
+          <div class="card">
+            <h3>Suoritukset (rastikäynnit)</h3>
+            <div id="suoritukset" class="muted">Ei suorituksia.</div>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
-
 </body>
 </html>
