@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Tulokset</title>
+
+  <script src="config.js"></script>
+  <script src="tulokset.js"></script>
+</head>
+<body>
+
+  <h2>Suoritus tallennetaan...</h2>
+
+  <script>
+    const p = new URLSearchParams(window.location.search);
+    const id = p.get("id");
+    const nimi = p.get("nimi");
+    const luokka = p.get("luokka");
+    const rata = p.get("rata");
+
+    // tässä voit hakea rasti-aikoja rastiX.js:stä tms.
+    tallennaOppilas(id, nimi, luokka, rata).then(() => {
+      document.body.innerHTML = "<h2>Kiitos, suoritus tallennettu!</h2>";
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+name: API Gateway
+
+on:
+  repository_dispatch:
+
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Luo issue GitHubiin
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          token: ${{ secrets.API_TOKEN }}
+          title: ${{ github.event.client_payload.title }}
+          content-filepath: issue-body.txt
+          labels: ${{ github.event.client_payload.labels }}
+
+      - name: Luo issue-body.txt
+        run: |
+          echo "${{ github.event.client_payload.body }}" > issue-body.txt
